@@ -43,8 +43,8 @@ create table pedido (
     consumidorid integer not null references consumidor(codigo) on delete cascade,
     datapedido date not null,
     status varchar(20),
-    motivocancelamento varchar(255),
-    datacancelamento timestamp
+	motivocancelamento varchar(255),
+	datacancelamento timestamp
 );
 
 create table itempedido(
