@@ -64,6 +64,11 @@ public class ConsumidorCadastrar extends HttpServlet {
             String cidade = texto(request.getParameter("cidade"));
             String estado = texto(request.getParameter("estado")).toUpperCase();
                 
+            boolean enderecoPreenchido = !cep.isEmpty() || !logradouro.isEmpty() || numero != 0
+                || !complemento.isEmpty() || !bairro.isEmpty() || !cidade.isEmpty()
+                || !estado.isEmpty();
+            boolean validaEndereco = (id == 0) || enderecoPreenchido;
+            
             if (!DocumentoValidador.isCPF(cpf)){
                 response.getWriter().write("3");
             } else if (dao.cpfExiste(cpf, id)){
@@ -80,13 +85,13 @@ public class ConsumidorCadastrar extends HttpServlet {
                 response.getWriter().write("9");
             } else if (!FORMAS_PAGAMENTO.contains(dadosPagamento)) {
                 response.getWriter().write("10");
-            } else if (cep.length() != 8) {
+            } else if (validaEndereco && cep.length() != 8) {
                 response.getWriter().write("11");
-            } else if (logradouro.isEmpty()) {
+            } else if (validaEndereco && logradouro.isEmpty()) {
                 response.getWriter().write("12");
-            } else if (cidade.isEmpty()) {
+            } else if (validaEndereco && cidade.isEmpty()) {
                 response.getWriter().write("13");
-            } else if (!UFS.contains(estado)) {
+            } else if (validaEndereco && !UFS.contains(estado)) {
                 response.getWriter().write("14");
             } else {
                 Consumidor oConsumidor = new Consumidor();

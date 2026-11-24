@@ -58,6 +58,10 @@ public class ProdutorCadastrar extends HttpServlet {
             String cidade = texto(request.getParameter("cidade"));
             String estado = texto(request.getParameter("estado")).toUpperCase();
                 
+            boolean enderecoPreenchido = !cep.isEmpty() || !logradouro.isEmpty()
+                || !complemento.isEmpty() || !cidade.isEmpty() || !estado.isEmpty();
+            boolean validaEndereco = (id == 0) || enderecoPreenchido;
+        
             if (cpf.isEmpty() && cnpj.isEmpty()) {
                 response.getWriter().write("13");
             } else if (!cpf.isEmpty() && !DocumentoValidador.isCPF(cpf)) {
@@ -70,7 +74,7 @@ public class ProdutorCadastrar extends HttpServlet {
                 response.getWriter().write("11");
             } else if (EmailValidador.isVazio(email)) {
                 response.getWriter().write("5");
-            } else if (!EmailValidador.isEmail(email)) {
+            }else if (!EmailValidador.isEmail(email)) {
                 response.getWriter().write("6");
             } else if (dao.emailExiste(email, id)) {
                 response.getWriter().write("7");
@@ -80,13 +84,13 @@ public class ProdutorCadastrar extends HttpServlet {
                 response.getWriter().write("12");
             } else if (id == 0 && senha.isBlank()) {
                 response.getWriter().write("9");
-            } else if (cep.length() != 8) {
+            } else if (validaEndereco && cep.length() != 8) {
                 response.getWriter().write("14");
-            } else if (logradouro.isEmpty()) {
+            } else if (validaEndereco && logradouro.isEmpty()) {
                 response.getWriter().write("15");
-            } else if (cidade.isEmpty()) {
+            } else if (validaEndereco && cidade.isEmpty()) {
                 response.getWriter().write("16");
-            } else if (!UFS.contains(estado)) {
+            } else if (validaEndereco && !UFS.contains(estado)) {
                 response.getWriter().write("17");
             } else {
                 Produtor oProdutor = new Produtor();

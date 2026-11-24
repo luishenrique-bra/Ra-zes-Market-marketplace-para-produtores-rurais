@@ -137,7 +137,11 @@
         '7':  {titulo: 'E-mail já cadastrado!',        campo: '#email'},
         '8':  {titulo: 'Informe o nome!',              campo: '#nome'},
         '9':  {titulo: 'Informe a senha!',             campo: '#senha'},
-        '10': {titulo: 'Forma de pagamento inválida!', campo: '#dadosPagamento'}
+        '10': {titulo: 'Forma de pagamento inválida!', campo: '#dadosPagamento'},
+        '11': {titulo: 'CEP inválido!',          campo: '#cep'},
+        '12': {titulo: 'Informe o logradouro!',  campo: '#logradouro'},
+        '13': {titulo: 'Informe a cidade!',      campo: '#cidade'},
+        '14': {titulo: 'Selecione o estado!',    campo: '#estado'}
     };
 
     $(document).ready(function () {
@@ -285,6 +289,13 @@
     }
 
     function validarCampos() {
+        var editando = $('#id').val() != 0;
+        var enderecoPreenchido = $('#cep').val().replace(/\D/g, '') !== '' ||
+            $('#logradouro').val().trim() !== '' || $('#numero').val().trim() !== '' ||
+            $('#complemento').val().trim() !== '' || $('#bairro').val().trim() !== '' ||
+            $('#cidade').val().trim() !== '' || $('#estado').val() !== '';
+        var validaEndereco = !editando || enderecoPreenchido;
+
         if ($('#nome').val().trim() === '') {
             aviso('Verifique o nome do consumidor!', '#nome');
         } else if ($('#cpf').val().trim() === '') {
@@ -293,23 +304,23 @@
             aviso('Informe o e-mail!', '#email');
         } else if (!validarEmail($('#email').val().trim())) {
             aviso('Formato de e-mail inválido!', '#email');
-        } else if ($('#id').val() == 0 && $('#senha').val() === '') {
+        } else if (!editando && $('#senha').val() === '') {
             aviso('Verifique a senha!', '#senha');
         } else if ($('#dadosPagamento').val() === '') {
             aviso('Selecione a forma de pagamento!', '#dadosPagamento');
-        } else if ($('#cep').val().replace(/\D/g, '').length !== 8) {
+        } else if (validaEndereco && $('#cep').val().replace(/\D/g, '').length !== 8) {
             aviso('Verifique o CEP!', '#cep');
-        } else if ($('#logradouro').val().trim() === '') {
+        } else if (validaEndereco && $('#logradouro').val().trim() === '') {
             aviso('Informe o logradouro!', '#logradouro');
-        } else if ($('#cidade').val().trim() === '') {
+        } else if (validaEndereco && $('#cidade').val().trim() === '') {
             aviso('Informe a cidade!', '#cidade');
-        } else if ($('#estado').val() === '') {
+        } else if (validaEndereco && $('#estado').val() === '') {
             aviso('Selecione o estado!', '#estado');
         } else {
             gravarDados();
         }
     }
-
+ 
     function gravarDados() {
         $.ajax({
             type: 'post',

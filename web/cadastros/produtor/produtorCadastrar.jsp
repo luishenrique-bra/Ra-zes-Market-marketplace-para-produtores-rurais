@@ -346,7 +346,12 @@
 
     function validarCampos() {
         var cepLimpo = $('#cep').val().replace(/\D/g, '');
-        
+        var editando = $('#id').val() != 0;
+        var enderecoPreenchido = cepLimpo !== '' ||
+            $('#logradouro').val().trim() !== '' || $('#cidade').val().trim() !== '' ||
+            $('#complemento').val().trim() !== '' || $('#estado').val() !== '';
+        var validaEndereco = !editando || enderecoPreenchido;
+
         if ($('#nome').val().trim() === '') {
             aviso('Verifique o nome do produtor!', '#nome');
         } else if ($('#nomePropriedade').val().trim() === '') {
@@ -357,16 +362,16 @@
             aviso('Informe o e-mail!', '#email');
         } else if (!validarEmail($('#email').val().trim())) {
             aviso('Formato de e-mail inválido!', '#email');
-        } else if ($('#id').val() == 0 && $('#senha').val() === '') {
+        } else if (!editando && $('#senha').val() === '') {
             aviso('Verifique a senha!', '#senha');
-        } else if ($('#logradouro').val().trim() === '') {
-        aviso('Informe o logradouro!', '#logradouro');
-        } else if ($('#cidade').val().trim() === '') {
+        } else if (validaEndereco && cepLimpo.length !== 8) {
+            aviso('CEP inválido!', '#cep');
+        } else if (validaEndereco && $('#logradouro').val().trim() === '') {
+            aviso('Informe o logradouro!', '#logradouro');
+        } else if (validaEndereco && $('#cidade').val().trim() === '') {
             aviso('Informe a cidade!', '#cidade');
-        } else if ($('#estado').val() === '') {
+        } else if (validaEndereco && $('#estado').val() === '') {
             aviso('Selecione o estado!', '#estado');
-        } else if (cepLimpo.length !== 8) {
-            aviso('CEP inválido!', '#cep');    
         } else {
             gravarDados();
         }

@@ -11,6 +11,7 @@ public class ItemPedido {
     private int id;
     private int pedidoId;
     private int produtoId;
+    private String produtoNome;
     private int quantidade;
     private BigDecimal precoUnitario;
     
@@ -18,6 +19,7 @@ public class ItemPedido {
         this.id = 0;
         this.pedidoId = 0;
         this.produtoId = 0;
+        this.produtoNome = "";
         this.quantidade = 0;
         this.precoUnitario = BigDecimal.ZERO;
     }
@@ -26,8 +28,9 @@ public class ItemPedido {
         this.id = id;
         this.pedidoId = pedidoId;
         this.produtoId = produtoId;
+        this.produtoNome = "";
         this.quantidade = quantidade;
-        this.precoUnitario = BigDecimal.ZERO;
+        this.precoUnitario = BigDecimal.valueOf(precoUnitario);
     }
     
     public int getId() {
@@ -54,6 +57,14 @@ public class ItemPedido {
         this.produtoId = produtoId;
     }
     
+    public String getProdutoNome() {
+        return produtoNome;
+    }
+    
+    public void setProdutoNome(String produtoNome) {
+        this.produtoNome = produtoNome;
+    }
+    
     public int getQuantidade() {
         return quantidade;
     }
@@ -68,5 +79,9 @@ public class ItemPedido {
     
     public void setPrecoUnitario(BigDecimal precoUnitario) {
         this.precoUnitario = precoUnitario;
+    }
+    
+    public BigDecimal getSubtotal() {
+        return precoUnitario.multiply(BigDecimal.valueOf(quantidade));
     }
 }

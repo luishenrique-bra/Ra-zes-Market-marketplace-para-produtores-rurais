@@ -4,6 +4,8 @@
  */
 package br.com.marketplace.model;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,10 +14,10 @@ public class Pedido {
     
     private int id;
     private int consumidorId;
-    private Date dataPedido;
+    private LocalDateTime dataPedido;
     private StatusPedido status = StatusPedido.CRIADO;
     private String motivoCancelamento;
-    private Date dataCancelamento;
+    private LocalDateTime dataCancelamento;
     private List<ItemPedido> itens = new ArrayList<>();
     
     // Cancela antes do envio
@@ -29,21 +31,21 @@ public class Pedido {
         }
         this.status = StatusPedido.CANCELADO;
         this.motivoCancelamento = motivo;
-        this.dataCancelamento = new Date();
+        this.dataCancelamento = LocalDateTime.now();
     }
     
     public Pedido() {
         this.id = 0;
         this.consumidorId = 0;
-        this.dataPedido = new Date();
+        this.dataPedido = LocalDateTime.now();
         this.status = StatusPedido.CRIADO;
         this.motivoCancelamento = "";
         this.dataCancelamento = null;
         this.itens = new ArrayList<>();
     }
     
-    public Pedido(int id, int consumidorId, Date dataPedido, StatusPedido status, String motivoCancelamento, 
-            Date dataCancelamento) {
+    public Pedido(int id, int consumidorId, LocalDateTime dataPedido, StatusPedido status, String motivoCancelamento, 
+            LocalDateTime dataCancelamento) {
         this.id = id;
         this.consumidorId = consumidorId;
         this.dataPedido = dataPedido;
@@ -69,11 +71,11 @@ public class Pedido {
         this.consumidorId = consumidorId;
     }
     
-    public Date getDataPedido() {
+    public LocalDateTime getDataPedido() {
         return dataPedido;
     }
     
-    public void setDataPedido(Date dataPedido) {
+    public void setDataPedido(LocalDateTime dataPedido) {
         this.dataPedido = dataPedido;
     }
     
@@ -97,12 +99,20 @@ public class Pedido {
         this.motivoCancelamento = motivoCancelamento;
     }
     
-    public Date getDataCancelamento() {
+    public LocalDateTime getDataCancelamento() {
         return dataCancelamento;
     }
     
-    public void setDataCancelamento (Date dataCancelamento) {
+    public void setDataCancelamento (LocalDateTime dataCancelamento) {
         this.dataCancelamento = dataCancelamento;
+    }
+    
+    public Date getDataPedidoDate() {
+        return dataPedido == null ? null : Date.from(dataPedido.atZone(ZoneId.systemDefault()).toInstant());
+    }
+    
+    public Date getDataCancelamentoDate() {
+        return dataCancelamento == null ? null : Date.from(dataCancelamento.atZone(ZoneId.systemDefault()).toInstant());
     }
     
     public List<ItemPedido> getItens() {

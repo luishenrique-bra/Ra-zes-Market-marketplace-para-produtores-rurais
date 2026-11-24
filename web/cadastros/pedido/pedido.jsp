@@ -40,7 +40,7 @@
                             </td>
                             <td align="left">
                                 <c:if test="${pedido.status == 'CANCELADO'}">
-                                    <fmt:formatDate value="${pedido.dataCancelamento}" pattern="dd/MM/yyyy HH:mm"/>
+                                    <fmt:formatDate value="${pedido.dataCancelamentoDate}" pattern="dd/MM/yyyy HH:mm"/>
                                 </c:if>
                             </td>
                             <td align="center">

@@ -7,8 +7,6 @@ import br.com.marketplace.model.Pedido;
 import br.com.marketplace.model.Produto;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -48,20 +46,6 @@ public class PedidoCadastrar extends HttpServlet {
             Pedido oPedido = new Pedido();
             oPedido.setId(lerInt(request.getParameter("id")));
             oPedido.setConsumidorId(consumidorId);
-            
-            // Tratamento da Data recebida do formulário (YYYY-MM-DD)
-            String strData = request.getParameter("dataPedido");
-            if (strData != null && !strData.isBlank()) {
-                try {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                    Date dataParsed = sdf.parse(strData);
-                    oPedido.setDataPedido(dataParsed);
-                } catch (Exception e) {
-                    oPedido.setDataPedido(new Date());
-                }
-            } else {
-                oPedido.setDataPedido(new Date());
-            }
 
             // Preenchimento dos itens do pedido com consulta ao preço unitário
             for (int i = 0; i < produtos.length; i++) {

@@ -26,8 +26,8 @@
                     <!-- Campo de Data preenchido com a data atual -->
                     <div class="form-group">
                         <label>Data</label>
-                        <input class="form-control" type="date" name="dataPedido" id="dataPedido"
-                               value="<fmt:formatDate value='${pedido.dataPedido}' pattern='yyyy-MM-dd'/>"/>
+                        <input class="form-control" type="date" name="dataPedido" id="dataPedido" readonly="readonly"
+                                value="<fmt:formatDate value='${pedido.dataPedidoDate}' pattern='yyyy-MM-dd'/>"/>
                     </div>
                     
                     <!-- O Status só aparece caso o pedido já exista -->
@@ -48,7 +48,7 @@
                         <div class="form-group">
                             <label>Data do Cancelamento</label>
                             <input class="form-control" type="text" name="dataCancelamento" id="dataCancelamento"
-                                   value="<fmt:formatDate value='${pedido.dataCancelamento}' pattern='dd/MM/yyyy HH:mm'/>" readonly="readonly"/>
+                                   value="<fmt:formatDate value='${pedido.dataCancelamentoDate}' pattern='dd/MM/yyyy HH:mm'/>" readonly="readonly"/>
                         </div>
                     </c:if>
 

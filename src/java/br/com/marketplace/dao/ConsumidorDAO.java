@@ -208,7 +208,7 @@ public class ConsumidorDAO implements GenericDAO {
     }
         
     public boolean cpfExiste(String cpf, int idIgnorar) { 
-        String sql = "select count(*) as quantidade_cpf from usuario where cpf = ? and id <> ?";
+        String sql = "select count(*) as quantidade_cpf from usuario where cpf = ? and codigo <> ?";
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, cpf);
             stmt.setInt(2, idIgnorar);
@@ -223,7 +223,7 @@ public class ConsumidorDAO implements GenericDAO {
     }
     
     public boolean emailExiste(String email, int idIgnorar) throws SQLException {
-        String sql = "select count(*) as quantidade_email from usuario where lower(email) = lower(?) and id <> ? ";
+        String sql = "select count(*) as quantidade_email from usuario where lower(email) = lower(?) and codigo <> ? ";
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, email);
             stmt.setInt(2, idIgnorar);

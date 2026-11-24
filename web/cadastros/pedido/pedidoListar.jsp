@@ -23,6 +23,7 @@
                         <th>Status</th>
                         <th>Motivo Cancelamento</th>
                         <th>Data Cancelamento</th>
+                        <th class="text-center">Itens</th>
                         <th class="text-center">Alterar</th>
                         <th class="text-center">Excluir</th>
                     </tr>
@@ -34,7 +35,7 @@
                             <td align="left">
                                 <c:choose>
                                     <c:when test="${not empty pedido.dataPedido}">
-                                        <fmt:formatDate value="${pedido.dataPedido}" pattern="dd/MM/yyyy HH:mm"/>
+                                        <fmt:formatDate value="${pedido.dataPedidoDate}" pattern="dd/MM/yyyy HH:mm"/>
                                     </c:when>
                                     <c:otherwise>-</c:otherwise>
                                 </c:choose>
@@ -47,8 +48,14 @@
                             </td>
                             <td align="left">
                                 <c:if test="${pedido.status == 'CANCELADO' && not empty pedido.dataCancelamento}">
-                                    <fmt:formatDate value="${pedido.dataCancelamento}" pattern="dd/MM/yyyy HH:mm"/>
+                                    <fmt:formatDate value="${pedido.dataCancelamentoDate}" pattern="dd/MM/yyyy HH:mm"/>
                                 </c:if>
+                            </td>
+                            <td align="center">
+                                <a class="btn btn-sm btn-info"
+                                    href="${pageContext.request.contextPath}/PedidoItensListar?pedidoId=${pedido.id}">
+                                    <i class="fas fa-list"></i> Itens
+                                </a>
                             </td>
                             <td align="center">
                                 <a class="btn btn-sm btn-primary"

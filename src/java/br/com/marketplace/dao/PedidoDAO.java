@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -41,9 +42,9 @@ public class PedidoDAO implements GenericDAO {
         String sqlItem = "insert into itempedido (pedidoid, produtoid, quantidade, precounitario) values (?,?,?,?)";
         
         try (PreparedStatement stmt = conexao.prepareStatement(sqlPedido)) {
-            Date data = (oPedido.getDataPedido() == null) ? new Date() : oPedido.getDataPedido();
+            LocalDateTime data = (oPedido.getDataPedido() == null) ? LocalDateTime.now() : oPedido.getDataPedido();
             stmt.setInt(1, oPedido.getConsumidorId());
-            stmt.setTimestamp(2, new Timestamp(data.getTime()));
+            stmt.setTimestamp(2, Timestamp.valueOf(data));
             stmt.setString(3, oPedido.getStatus() != null ? oPedido.getStatus().name() : "CRIADO");
             
             int idGerado = 0;
@@ -87,16 +88,14 @@ public class PedidoDAO implements GenericDAO {
             return false;
         }
 
-        String sqlPedido = "update pedido set datapedido=? where codigo=? and status <> 'CANCELADO'";
+        String sqlPedido = "update pedido set datapedido=datapedido where codigo=? and status <> 'CANCELADO'";
         String sqlApagaItens = "delete from itempedido where pedidoid=?";
         String sqlItem = "insert into itempedido (pedidoid, produtoid, quantidade, precounitario) values (?,?,?,?)";
 
         try {
-            Date data = (oPedido.getDataPedido() == null) ? new Date() : oPedido.getDataPedido();
-
+            
             try (PreparedStatement stmt = conexao.prepareStatement(sqlPedido)) {
-                stmt.setTimestamp(1, new Timestamp(data.getTime()));
-                stmt.setInt(2, oPedido.getId());
+                stmt.setInt(1, oPedido.getId());
                 if (stmt.executeUpdate() == 0) {
                     conexao.rollback();
                     return false;
@@ -209,9 +208,7 @@ public class PedidoDAO implements GenericDAO {
         
         Timestamp tsData = rs.getTimestamp("datapedido");
         if (tsData != null) {
-            oPedido.setDataPedido(new Date(tsData.getTime()));
-        } else {
-            oPedido.setDataPedido(new Date());
+            oPedido.setDataPedido(tsData.toLocalDateTime());
         }
         
         String statusStr = rs.getString("status");
@@ -223,8 +220,35 @@ public class PedidoDAO implements GenericDAO {
         
         Timestamp tsCancel = rs.getTimestamp("datacancelamento");
         if (tsCancel != null) {
-            oPedido.setDataCancelamento(new Date(tsCancel.getTime()));
+            oPedido.setDataCancelamento(tsCancel.toLocalDateTime());
         }
         return oPedido;
+    }
+    
+    public List<ItemPedido> listarItens(int pedidoId) {
+        List<ItemPedido> resultado = new ArrayList<>();
+        String sql = "select i.codigo, i.produtoid, p.nome, i.quantidade, i.precounitario "
+               + "from itempedido i join produto p on p.codigo = i.produtoid "
+               + "where i.pedidoid = ? order by i.codigo";
+
+        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+            stmt.setInt(1, pedidoId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ItemPedido oItem = new ItemPedido();
+                    oItem.setId(rs.getInt("codigo"));
+                    oItem.setProdutoId(rs.getInt("produtoid"));
+                    oItem.setProdutoNome(rs.getString("nome"));
+                    oItem.setQuantidade(rs.getInt("quantidade"));
+                    oItem.setPrecoUnitario(rs.getBigDecimal("precounitario"));
+                    resultado.add(oItem);
+                }
+            }   
+        } catch (SQLException ex) {
+            System.out.println("Erro ao listar itens do pedido: " + ex.getMessage());
+            ex.printStackTrace();
+            try { conexao.rollback(); } catch (SQLException ignored) {}
+        }
+        return resultado;
     }
 }

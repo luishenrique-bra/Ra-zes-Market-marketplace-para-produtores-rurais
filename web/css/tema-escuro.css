@@ -14,6 +14,9 @@
     --ok-hover: #236946;
     --ok-ativo: #1d5a3a;
     --perigo: #e8847f;
+    --exclui: #b4403c;
+    --exclui-hover: #9a3532;
+    --exclui-ativo: #82302c;
 }
 
 html, body { background-color: var(--fundo); }
@@ -95,6 +98,11 @@ label { color: var(--texto-suave); }
 .btn-secondary:not(:disabled):not(.disabled):active { background-color: #2f3744; border-color: #4a5566; color: var(--texto); }
 .btn-secondary:focus { box-shadow: 0 0 0 3px rgba(106, 167, 224, 0.4); }
 
+.btn-danger { background-color: var(--exclui); border-color: var(--exclui); color: #fff; }
+.btn-danger:hover, .btn-danger:focus { background-color: var(--exclui-hover); border-color: var(--exclui-hover); color: #fff; }
+.btn-danger:not(:disabled):not(.disabled):active { background-color: var(--exclui-ativo); border-color: var(--exclui-ativo); color: #fff; }
+.btn-danger:focus { box-shadow: 0 0 0 3px rgba(232, 132, 127, 0.4); }
+
 table.dataTable thead th, table.dataTable thead td { color: var(--texto); font-weight: 600; border-bottom: 1px solid var(--borda); }
 table.dataTable.no-footer { border-bottom: 1px solid var(--borda); }
 table.dataTable tbody tr { background-color: var(--superficie); }
@@ -130,6 +138,16 @@ table.dataTable td button {
     font: inherit;
     font-size: 0.875rem;
     cursor: pointer;
+}
+table.dataTable td button.btn-danger {
+    background-color: var(--exclui);
+    border-color: var(--exclui);
+    color: #fff;
+}
+table.dataTable td button.btn-danger:hover {
+    background-color: var(--exclui-hover);
+    border-color: var(--exclui-hover);
+    color: #fff;
 }
 table.dataTable td button:hover { background-color: var(--superficie-2); border-color: var(--acento); }
 table.dataTable td a[title="Excluir"] button { color: var(--perigo); border-color: #6b3433; }
