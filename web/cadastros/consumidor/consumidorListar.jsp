@@ -47,7 +47,7 @@
                             </td>
                             <td align="center">
                                 <a class="btn btn-sm btn-info"
-                                   href="${pageContext.request.contextPath}/EnderecoListar?usuarioId=${consumidor.id}">Endereços</a>
+                                   href="${pageContext.request.contextPath}/EnderecoListar?usuarioId=${consumidor.id}&amp;origem=ConsumidorListar">Endereços</a>
                             </td>
                             <td align="center">
                                 <a class="btn btn-sm btn-primary"

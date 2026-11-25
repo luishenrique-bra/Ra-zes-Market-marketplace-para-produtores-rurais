@@ -10,12 +10,25 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.Comparator;
 import java.util.List;
 
 public class PedidoDAO implements GenericDAO {
     
     private Connection conexao;
+    
+    private int erroProdutoId = 0;
+    private int erroDisponivel = 0;  
+    
+    public int getErroProdutoId() {
+        return erroProdutoId;
+    }   
+    public int getErroDisponivel() {
+        return erroDisponivel;
+    }  
+    public boolean isErroEstoque() {
+        return erroProdutoId > 0;
+    }
     
     public PedidoDAO() throws Exception {
         conexao = SingleConnection.getConnection();
@@ -37,6 +50,9 @@ public class PedidoDAO implements GenericDAO {
         if (oPedido.getItens() == null || oPedido.getItens().isEmpty()) {
             return false;
         }
+        
+        erroProdutoId = 0;
+        erroDisponivel = 0;
         
         String sqlPedido = "insert into pedido (consumidorid, datapedido, status) values (?,?,?) returning codigo";
         String sqlItem = "insert into itempedido (pedidoid, produtoid, quantidade, precounitario) values (?,?,?,?)";
@@ -70,6 +86,11 @@ public class PedidoDAO implements GenericDAO {
                 ps.executeBatch();
             }
             
+            if (!baixarEstoque(oPedido.getItens())) {
+                conexao.rollback();
+                return false;
+            }
+            
             conexao.commit();
             oPedido.setId(idGerado);
             return true;
@@ -87,6 +108,9 @@ public class PedidoDAO implements GenericDAO {
         if (oPedido.getItens() == null || oPedido.getItens().isEmpty()) {
             return false;
         }
+        
+        erroProdutoId = 0;
+        erroDisponivel = 0;
 
         String sqlPedido = "update pedido set datapedido=datapedido where codigo=? and status <> 'CANCELADO'";
         String sqlApagaItens = "delete from itempedido where pedidoid=?";
@@ -102,6 +126,7 @@ public class PedidoDAO implements GenericDAO {
                 }
             }
 
+            devolverEstoque(oPedido.getId());
             try (PreparedStatement stmt = conexao.prepareStatement(sqlApagaItens)) {
                 stmt.setInt(1, oPedido.getId());
                 stmt.executeUpdate();
@@ -117,7 +142,11 @@ public class PedidoDAO implements GenericDAO {
                 }
                 ps.executeBatch();
             }
-
+            
+            if (!baixarEstoque(oPedido.getItens())) {
+                conexao.rollback();
+                return false;
+            }
             conexao.commit();
             return true;
         } catch (Exception ex) {
@@ -131,6 +160,14 @@ public class PedidoDAO implements GenericDAO {
     @Override
     public Boolean excluir(int numero) {
         String sql = "delete from pedido where codigo=?";
+        try {
+            devolverEstoque(numero);
+        } catch (SQLException ex) {
+            System.out.println("Erro ao devolver estoque do pedido: " + ex.getMessage());
+            ex.printStackTrace();
+            try { conexao.rollback(); } catch (SQLException ignored) {}
+            return false;
+        }
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, numero);
             stmt.execute();
@@ -250,5 +287,46 @@ public class PedidoDAO implements GenericDAO {
             try { conexao.rollback(); } catch (SQLException ignored) {}
         }
         return resultado;
+    }
+    
+    private boolean baixarEstoque(List<ItemPedido> itens) throws SQLException {
+        List<ItemPedido> ordenados = new ArrayList<>(itens);
+        ordenados.sort(Comparator.comparingInt(ItemPedido::getProdutoId));
+        String sqlBaixa = "update produto set qtdeestoque = qtdeestoque - ? "
+                + "where codigo = ? and qtdeestoque >= ?";
+        String sqlSaldo = "select qtdeestoque from produto where codigo = ?";
+        try (PreparedStatement ps = conexao.prepareStatement(sqlBaixa)) {
+            for (ItemPedido oItem : ordenados) {
+                ps.setInt(1, oItem.getQuantidade());
+                ps.setInt(2, oItem.getProdutoId());
+                ps.setInt(3, oItem.getQuantidade());
+                if (ps.executeUpdate() == 0) {
+                    erroProdutoId = oItem.getProdutoId();
+                    erroDisponivel = 0;
+                    try (PreparedStatement st = conexao.prepareStatement(sqlSaldo)) {
+                        st.setInt(1, oItem.getProdutoId());
+                        try (ResultSet rs = st.executeQuery()) {
+                            if (rs.next()) {
+                                erroDisponivel = Math.max(rs.getInt(1), 0);
+                            }
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }     
+
+    private void devolverEstoque(int pedidoId) throws SQLException {
+        String sql = "update produto p set qtdeestoque = p.qtdeestoque + t.qtde from ("
+                + "select i.produtoid, sum(i.quantidade) as qtde "
+                + "from itempedido i join pedido pe on pe.codigo = i.pedidoid "
+                + "where i.pedidoid = ? and coalesce(pe.status, '') <> 'CANCELADO' "
+                + "group by i.produtoid) t where p.codigo = t.produtoid";
+        try (PreparedStatement ps = conexao.prepareStatement(sql)) {
+            ps.setInt(1, pedidoId);
+            ps.executeUpdate();
+        }
     }
 }

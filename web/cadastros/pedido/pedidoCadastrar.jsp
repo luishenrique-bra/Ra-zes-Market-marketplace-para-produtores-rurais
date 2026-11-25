@@ -202,7 +202,17 @@
             traditional: true,
             success: function (data) {
                 var codigo = String(data).trim();
-                if (codigo === '1') {
+                if (codigo.indexOf('5;') === 0) {
+                    var partes = codigo.split(';');
+                    var nome = $('#templateProdutos option[value="' + partes[1] + '"]').text().trim();
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'error',
+                        title: 'Estoque insuficiente!',
+                        text: (nome ? nome : 'O produto') + ': disponível ' + partes[2] + ' unidade(s).',
+                        showConfirmButton: true
+                    });
+                } else if (codigo === '1') {
                     Swal.fire({
                         position: 'center',
                         icon: 'success',

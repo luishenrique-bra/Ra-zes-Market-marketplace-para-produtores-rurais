@@ -74,6 +74,8 @@ public class PedidoCadastrar extends HttpServlet {
             // Executa a gravação
             if (dao.cadastrar(oPedido)) {
                 response.getWriter().write("1");
+            } else if (dao.isErroEstoque()) {
+                response.getWriter().write("5;" + dao.getErroProdutoId() + ";" + dao.getErroDisponivel());
             } else {
                 response.getWriter().write("0");
             }

@@ -41,7 +41,7 @@
                             <td><c:out value="${produtor.telefone}"/></td>
                             <td align="center">
                                 <a class="btn btn-sm btn-info"
-                                   href="${pageContext.request.contextPath}/EnderecoListar?usuarioId=${produtor.id}">Endereços</a>
+                                   href="${pageContext.request.contextPath}/EnderecoListar?usuarioId=${produtor.id}&amp;origem=ProdutorListar">Endereços</a>
                             </td>
                             <td align="center">
                                 <a class="btn btn-sm btn-primary"

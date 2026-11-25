@@ -1,6 +1,7 @@
 <%@page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <c:set var="origem" value="${param.origem == 'ProdutorListar' ? 'ProdutorListar' : 'ConsumidorListar'}"/>
+<c:set var="ehProdutor" value="${origem == 'ProdutorListar'}"/>
 <jsp:include page="/header.jsp"/>
 <jsp:include page="/menu.jsp"/>
 
@@ -35,13 +36,22 @@
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group col-md-3">
-                            <label>Número</label>
-                            <input class="form-control" type="text" name="numero" id="numero"
-                                   value="${endereco.numero == 0 ? '' : endereco.numero}" maxlength="9"
-                                   placeholder="Número da casa ou apartamento"/>
-                        </div>
-                        <div class="form-group col-md-9">
+                        <c:choose>
+                            <c:when test="${ehProdutor}">
+                                <%-- Produtor não usa número nem bairro: ficam ocultos para não perder o valor gravado --%>
+                                <input type="hidden" name="numero" id="numero" value="${endereco.numero == 0 ? '' : endereco.numero}"/>
+                                <input type="hidden" name="bairro" id="bairro" value="<c:out value='${endereco.bairro}'/>"/>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="form-group col-md-3">
+                                    <label>Número</label>
+                                    <input class="form-control" type="text" name="numero" id="numero"
+                                           value="${endereco.numero == 0 ? '' : endereco.numero}" maxlength="9"
+                                           placeholder="Número da casa ou apartamento"/>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+                        <div class="form-group ${ehProdutor ? 'col-md-12' : 'col-md-9'}">
                             <label>Complemento</label>
                             <input class="form-control" type="text" name="complemento" id="complemento"
                                    value="<c:out value='${endereco.complemento}'/>" maxlength="100"
@@ -49,16 +59,18 @@
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group col-md-5">
-                            <label>Bairro</label>
-                            <input class="form-control" type="text" name="bairro" id="bairro"
-                                   value="<c:out value='${endereco.bairro}'/>" maxlength="100"
-                                   placeholder="Digite o nome do bairro"/>
-                        </div>
-                        <div class="form-group col-md-5">
+                        <c:if test="${!ehProdutor}">
+                            <div class="form-group col-md-5">
+                                <label>Bairro</label>
+                                <input class="form-control" type="text" name="bairro" id="bairro"
+                                       value="<c:out value='${endereco.bairro}'/>" maxlength="100"
+                                       placeholder="Digite o nome do bairro"/>
+                            </div>
+                        </c:if>
+                        <div class="form-group ${ehProdutor ? 'col-md-10' : 'col-md-5'}">
                             <label>Cidade</label>
                             <input class="form-control" type="text" name="cidade" id="cidade"
-                                   value="<c:out value='${endereco.cidade}'/>" maxlength="100"]
+                                   value="<c:out value='${endereco.cidade}'/>" maxlength="100"
                                    placeholder="Digite o nome da cidade"/>
                         </div>
                         <div class="form-group col-md-2">
